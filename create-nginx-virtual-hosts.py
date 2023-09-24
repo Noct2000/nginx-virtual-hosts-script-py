@@ -88,51 +88,50 @@ def main():
         print("Example:")
         print("python create-nginx-virtual-hosts.py myhost1.com myhost2.org myhost3.com")
     else:
-        if not subprocess.run(['dpkg', '-l'], stdout=subprocess.PIPE, stderr=subprocess.PIPE).returncode != 0:
-            # Check if OpenSSH Server is installed
-            if b"openssh-server" not in subprocess.check_output(['dpkg', '-l'], stdout=subprocess.PIPE, stderr=subprocess.PIPE):
-                print("OpenSSH Server is not installed. Installing...")
-                install_package("openssh-server")
-            else:
-                print("OpenSSH Server is already installed.")
+        # Check if OpenSSH Server is installed
+        if b"openssh-server" not in subprocess.check_output(['sudo' ,'dpkg', '-l']):
+            print("OpenSSH Server is not installed. Installing...")
+            install_package("openssh-server")
+        else:
+            print("OpenSSH Server is already installed.")
 
-            # Check if Nginx is installed
-            if b"nginx" not in subprocess.check_output(['dpkg', '-l'], stdout=subprocess.PIPE, stderr=subprocess.PIPE):
-                print("Nginx is not installed. Installing...")
-                install_package("nginx")
-            else:
-                print("Nginx is already installed.")
+        # Check if Nginx is installed
+        if b"nginx" not in subprocess.check_output(['sudo', 'dpkg', '-l']):
+            print("Nginx is not installed. Installing...")
+            install_package("nginx")
+        else:
+            print("Nginx is already installed.")
 
-            # Stop nginx
-            subprocess.run(['sudo', 'systemctl', 'stop', 'nginx'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        # Stop nginx
+        subprocess.run(['sudo', 'systemctl', 'stop', 'nginx'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-            # Loop through all virtual hostnames
-            for arg in args:
-                create_virtual_host(arg)
+        # Loop through all virtual hostnames
+        for arg in args:
+            create_virtual_host(arg)
 
-            print("Fix error hash bucket memory")
-            subprocess.run(
-                ['sudo', 'sed', '-i', 's/# server_names_hash_bucket_size 64;/server_names_hash_bucket_size 64;/', '/etc/nginx/nginx.conf'],
-                stdout=subprocess.PIPE, 
-                stderr=subprocess.PIPE
-            )
-            print("Success")
+        print("Fix error hash bucket memory")
+        subprocess.run(
+            ['sudo', 'sed', '-i', 's/# server_names_hash_bucket_size 64;/server_names_hash_bucket_size 64;/', '/etc/nginx/nginx.conf'],
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.PIPE
+        )
+        print("Success")
 
-            print("Start nginx")
-            subprocess.run(
-                ['sudo', 'systemctl', 'start', 'nginx'],
-                stdout=subprocess.PIPE, 
-                stderr=subprocess.PIPE
-            )
-            
-            # Get IP address
-            ip_address = subprocess.check_output(['hostname', '-I'], stdout=subprocess.PIPE, stderr=subprocess.PIPE).decode().strip()
-            print("Success")
+        print("Start nginx")
+        subprocess.run(
+            ['sudo', 'systemctl', 'start', 'nginx'],
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.PIPE
+        )
+        
+        # Get IP address
+        ip_address = subprocess.check_output(['hostname', '-I'], stdout=subprocess.PIPE, stderr=subprocess.PIPE).decode().strip()
+        print("Success")
 
-            print("Please add the following line to your hosts file:")
-            print(f"{ip_address} {' '.join(args)}")
-            print("Usual Windows path: \"C:\\Windows\\System32\\drivers\\etc\\hosts\"")
-            print("Usual Linux path: \"/etc/hosts\"")
+        print("Please add the following line to your hosts file:")
+        print(f"{ip_address} {' '.join(args)}")
+        print("Usual Windows path: \"C:\\Windows\\System32\\drivers\\etc\\hosts\"")
+        print("Usual Linux path: \"/etc/hosts\"")
 
 if __name__ == "__main__":
     main()
