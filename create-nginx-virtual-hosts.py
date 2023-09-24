@@ -3,6 +3,7 @@
 import subprocess
 import os
 import sys
+import socket
 
 def install_package(package_name):
     subprocess.run(
@@ -124,8 +125,12 @@ def main():
             stderr=subprocess.PIPE
         )
         
-        # Get IP address
-        ip_address = subprocess.check_output(['hostname', '-I'], stdout=subprocess.PIPE, stderr=subprocess.PIPE).decode().strip()
+        print("Get IP address")
+        # Get the host name
+        host_name = socket.gethostname()
+
+        # Get the IP address associated with the host name
+        ip_address = socket.gethostbyname(host_name)
         print("Success")
 
         print("Please add the following line to your hosts file:")
