@@ -127,7 +127,7 @@ def main():
         # Get IP address
         print("Get IP address")
         # Get the IP address associated with the host name
-        ip_address = subprocess.check_output(['hostname -I']).decode().strip()
+        ip_address = subprocess.check_output(['hostname', '-I']).decode().strip()
         print("Success")
 
         print("Please add the following line to your hosts file:")
