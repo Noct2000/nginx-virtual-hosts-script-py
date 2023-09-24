@@ -88,7 +88,7 @@ def main():
         print("Example:")
         print("python create-nginx-virtual-hosts.py myhost1.com myhost2.org myhost3.com")
     else:
-        if subprocess.run(['dpkg', '-l'], stdout=subprocess.PIPE, stderr=subprocess.PIPE).returncode != 0:
+        if not subprocess.run(['dpkg', '-l'], stdout=subprocess.PIPE, stderr=subprocess.PIPE).returncode != 0:
             # Check if OpenSSH Server is installed
             if b"openssh-server" not in subprocess.check_output(['dpkg', '-l'], stdout=subprocess.PIPE, stderr=subprocess.PIPE):
                 print("OpenSSH Server is not installed. Installing...")
