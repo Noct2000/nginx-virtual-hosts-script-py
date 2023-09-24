@@ -77,6 +77,16 @@ def create_virtual_host(hostname):
         stderr=subprocess.PIPE
     )
 
+def update_issue(issue):
+    print(f"Update {issue}")
+    virt_hosts = list(filter(lambda host: host != 'default', os.listdir('/etc/nginx/sites-enabled/')))
+
+    # Uptate given issue
+    with open(issue, 'w') as issue_file:
+        issue_file.write("Welcome to Ubuntu server\n")
+        issue_file.write("Local IPv4: \\4{enp0s3}\n")
+        issue_file.write(f"Your available virtual hosts {', '.join(virt_hosts)}\n")
+
 def main():
     # Get the arguments from the command-line except the filename
     args = sys.argv[1:]
@@ -128,6 +138,9 @@ def main():
         print("Get IP address")
         # Get the IP address associated with the host name
         ip_address = subprocess.check_output(['hostname', '-I']).decode().strip()
+        print("Success")
+        update_issue("etc/issue")
+        update_issue("etc/issue.net")
         print("Success")
 
         print("Please add the following line to your hosts file:")
