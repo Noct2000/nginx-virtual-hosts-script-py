@@ -55,6 +55,12 @@ def create_virtual_host(hostname):
 
     print("Success")
 
+    # Change web page owner
+    subprocess.run(['sudo', 'chown', '-R', '$USER:$USER', f'/var/www/{hostname}/html'])
+
+    # Make host available
+    subprocess.run(['sudo', 'ln', '-s', f'/etc/nginx/sites-available/{hostname}', f'/etc/nginx/sites-enabled/{hostname}'])
+
 def main():
     # Get the arguments from the command-line except the filename
     args = sys.argv[1:]
