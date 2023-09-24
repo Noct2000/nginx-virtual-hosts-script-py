@@ -85,7 +85,7 @@ def update_issue(issue):
     with open(issue, 'w') as issue_file:
         issue_file.write("Welcome to Ubuntu server\n")
         issue_file.write("Local IPv4: \\4{enp0s3}\n")
-        issue_file.write(f"Your available virtual hosts {', '.join(virt_hosts)}\n")
+        issue_file.write(f"Your available virtual hosts: {', '.join(virt_hosts)}\n")
 
 def main():
     # Get the arguments from the command-line except the filename
