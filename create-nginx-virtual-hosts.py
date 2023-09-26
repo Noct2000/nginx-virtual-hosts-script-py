@@ -4,21 +4,23 @@ import subprocess
 import os
 import sys
 
+
 def install_package(package_name):
     subprocess.run(
         ['sudo', 'apt-get', 'update'],
-        stdout=subprocess.PIPE, 
+        stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
     subprocess.run(
         ['sudo', 'apt-get', 'install', '-y', package_name],
-        stdout=subprocess.PIPE, 
+        stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
 
+
 def create_virtual_host(hostname):
     print(f"Creating: {hostname} virtual host")
-    
+
     # Prepare host config
     base_virtual_host_config = f"""
     # Virtual Host configuration for {hostname}
@@ -40,13 +42,13 @@ def create_virtual_host(hostname):
             }}
     }}
     """
-    
+
     # Write config to /etc/nginx/sites-available/{hostname}
     with open(f"/etc/nginx/sites-available/{hostname}", 'w') as config_file:
         config_file.write(base_virtual_host_config)
 
     print("Success")
-    
+
     # Create base page for {hostname} virtual host
     web_page = f"""
     <html>
@@ -55,7 +57,7 @@ def create_virtual_host(hostname):
         </body>
     </html>
     """
-    
+
     # Create directory and write index.html
     os.makedirs(f"/var/www/{hostname}/html", exist_ok=True)
     with open(f"/var/www/{hostname}/html/index.html", 'w') as index_file:
@@ -65,27 +67,33 @@ def create_virtual_host(hostname):
 
     # Change web page owner
     subprocess.run(
-        ['sudo', 'chown', '-R', f'{os.getlogin()}:{os.getlogin()}', f'/var/www/{hostname}/html'],
-        stdout=subprocess.PIPE, 
+        ['sudo', 'chown', '-R',
+            f'{os.getlogin()}:{os.getlogin()}', f'/var/www/{hostname}/html'],
+        stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
 
     # Make host available
     subprocess.run(
-        ['sudo', 'ln', '-s', f'/etc/nginx/sites-available/{hostname}', f'/etc/nginx/sites-enabled/{hostname}'],
-        stdout=subprocess.PIPE, 
+        ['sudo', 'ln', '-s',
+            f'/etc/nginx/sites-available/{hostname}', f'/etc/nginx/sites-enabled/{hostname}'],
+        stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
 
+
 def update_issue(issue):
     print(f"Update {issue}")
-    virt_hosts = list(filter(lambda host: host != 'default', os.listdir('/etc/nginx/sites-enabled/')))
+    virt_hosts = list(filter(lambda host: host != 'default',
+                      os.listdir('/etc/nginx/sites-enabled/')))
 
     # Uptate given issue
     with open(issue, 'w') as issue_file:
         issue_file.write("Welcome to Ubuntu server\n")
         issue_file.write("Local IPv4: \\4{enp0s3}\n")
-        issue_file.write(f"Your available virtual hosts: {', '.join(virt_hosts)}\n")
+        issue_file.write(
+            f"Your available virtual hosts: {', '.join(virt_hosts)}\n")
+
 
 def main():
     # Get the arguments from the command-line except the filename
@@ -99,7 +107,7 @@ def main():
         print("python create-nginx-virtual-hosts.py myhost1.com myhost2.org myhost3.com")
     else:
         # Check if OpenSSH Server is installed
-        if b"openssh-server" not in subprocess.check_output(['sudo' ,'dpkg', '-l']):
+        if b"openssh-server" not in subprocess.check_output(['sudo', 'dpkg', '-l']):
             print("OpenSSH Server is not installed. Installing...")
             install_package("openssh-server")
         else:
@@ -113,7 +121,8 @@ def main():
             print("Nginx is already installed.")
 
         # Stop nginx
-        subprocess.run(['sudo', 'systemctl', 'stop', 'nginx'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        subprocess.run(['sudo', 'systemctl', 'stop', 'nginx'],
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         # Loop through all virtual hostnames
         for arg in args:
@@ -121,8 +130,9 @@ def main():
 
         print("Fix error hash bucket memory")
         subprocess.run(
-            ['sudo', 'sed', '-i', 's/# server_names_hash_bucket_size 64;/server_names_hash_bucket_size 64;/', '/etc/nginx/nginx.conf'],
-            stdout=subprocess.PIPE, 
+            ['sudo', 'sed', '-i', 's/# server_names_hash_bucket_size 64;/server_names_hash_bucket_size 64;/',
+                '/etc/nginx/nginx.conf'],
+            stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
         print("Success")
@@ -130,14 +140,15 @@ def main():
         print("Start nginx")
         subprocess.run(
             ['sudo', 'systemctl', 'start', 'nginx'],
-            stdout=subprocess.PIPE, 
+            stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
-        
+
         # Get IP address
         print("Get IP address")
         # Get the IP address associated with the host name
-        ip_address = subprocess.check_output(['hostname', '-I']).decode().strip()
+        ip_address = subprocess.check_output(
+            ['hostname', '-I']).decode().strip()
         print("Success")
         update_issue("/etc/issue")
         update_issue("/etc/issue.net")
@@ -147,6 +158,7 @@ def main():
         print(f"{ip_address} {' '.join(args)}")
         print("Usual Windows path: \"C:\\Windows\\System32\\drivers\\etc\\hosts\"")
         print("Usual Linux path: \"/etc/hosts\"")
+
 
 if __name__ == "__main__":
     main()
